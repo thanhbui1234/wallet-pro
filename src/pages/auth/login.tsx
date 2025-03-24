@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
+import { showCustomToast } from "@/components/ui/toats.tsx";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -33,6 +34,11 @@ export default function Login() {
   const onSubmit = async (data: { email: string; password: string }) => {
     try {
       console.log("Đăng nhập với:", data);
+      showCustomToast({
+        type: "error",
+        message: "Operation completed successfully!",
+      });
+
       setErrorMessage(""); // Xóa lỗi cũ (nếu có)
       // Gọi API đăng nhập tại đây...
     } catch (error: any) {
