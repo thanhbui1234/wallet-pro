@@ -9,20 +9,23 @@ import {
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
 import { showCustomToast } from "@/components/ui/toats.tsx";
+import { useAuthStore } from "@/store/authStore.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import * as z from "zod";
 
 // Schema validation với zod
 const loginSchema = z.object({
-  email: z.string().email("Email không hợp lệ"),
-  password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
+  username: z.string().min(5, "username  is requited"),
+  password: z.string().min(2, "password is requited"),
 });
 
 export default function Login() {
   const [errorMessage, setErrorMessage] = useState("");
-
+  const { login } = useAuthStore();
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -31,18 +34,20 @@ export default function Login() {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: { email: string; password: string }) => {
+  const onSubmit = async (data: { username: string; password: string }) => {
     try {
-      console.log("Đăng nhập với:", data);
+      await login(data.username, data.password);
+      navigate("/");
       showCustomToast({
-        type: "error",
+        type: "success",
         message: "Operation completed successfully!",
       });
-
-      setErrorMessage(""); // Xóa lỗi cũ (nếu có)
-      // Gọi API đăng nhập tại đây...
+      setErrorMessage("");
     } catch (error: any) {
-      setErrorMessage(error.message);
+      showCustomToast({
+        type: "success",
+        message: error,
+      });
     }
   };
 
@@ -54,18 +59,18 @@ export default function Login() {
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-4">
-            <Label className="mb-4" htmlFor="email">
-              Email
+            <Label className="mb-4" htmlFor="username">
+              username
             </Label>
             <Input
-              id="email"
-              type="email"
-              placeholder="Nhập email"
-              {...register("email")}
+              id="username"
+              type="username"
+              placeholder="Nhập username"
+              {...register("username")}
             />
-            {errors.email && (
+            {errors.username && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.email.message}
+                {errors.username.message}
               </p>
             )}
           </div>

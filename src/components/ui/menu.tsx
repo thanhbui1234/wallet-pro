@@ -1,21 +1,23 @@
+import AvatarHeader from "@/components/ui/Header/avatar.tsx";
 import { NavLink } from "react-router-dom";
 
 const navLinks = [
-  { to: "/", label: "Home" },
-  { to: "/about", label: "About" },
+  { to: "/bot", label: "Bot" },
+  { to: "/strategy", label: "Strategy" },
+  { to: "/position", label: "Position" },
 ];
 
 export default function Header() {
   return (
     <header className="flex justify-between items-center px-6 py-4 bg-white shadow-md">
-      <img src="/logo-left.png" alt="Left Logo" className="h-10 w-10" />
+      <AvatarHeader />
       <nav className="flex gap-6">
         {navLinks.map(({ to, label }) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }) =>
-              `font-medium ${
+              `font-semibold ${
                 isActive ? "text-black" : "text-gray-700 hover:text-black"
               }`
             }

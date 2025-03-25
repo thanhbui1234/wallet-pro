@@ -1,5 +1,5 @@
 // services/api.ts
-import { getToken } from "@/utils/token.ts";
+import { getTokenAuth } from "@/utils/token.ts";
 import axios from "axios";
 import { toast } from "sonner";
 
@@ -11,7 +11,7 @@ export const api = axios.create({
 // Attach JWT to every request if exists
 api.interceptors.request.use(
   (config) => {
-    const token = getToken();
+    const token = getTokenAuth();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

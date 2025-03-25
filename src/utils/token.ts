@@ -1,5 +1,5 @@
 // utils/token.ts
-export const getToken = () => {
+export const getTokenAuth = () => {
   if (typeof window !== "undefined") {
     return localStorage.getItem("token");
   }

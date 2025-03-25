@@ -4,9 +4,11 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import AuthLayout from "@/layouts/AuthLayout/index.tsx";
 import Layout from "@/layouts/MainLayout/index.tsx";
 import Login from "@/pages/auth/login.tsx";
+import PrivateRoute from "@/routers/PrivateRouter.tsx";
 import PublicRoute from "@/routers/PublichRouter.tsx";
+import { lazy } from "react";
 
-// const Bots = lazy(() => import("../pages/Bots"));
+const Bots = lazy(() => import("@/pages/Bot/index.tsx"));
 // const Login = lazy(() => import("../pages/Login"));
 
 const router = createBrowserRouter([
@@ -15,8 +17,20 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       {
-        index: true, // Route mặc định khi truy cập "/"
-        element: <h1>Trang chủ</h1>,
+        index: true,
+        element: <Navigate to="/bot" replace />,
+      },
+      {
+        element: <PrivateRoute element={<Bots />} />,
+        path: "/bot",
+      },
+      {
+        element: <PrivateRoute element={<h1>hihi</h1>} />,
+        path: "/strategy",
+      },
+      {
+        element: <PrivateRoute element={<h1>huhu </h1>} />,
+        path: "/position",
       },
     ],
   },
