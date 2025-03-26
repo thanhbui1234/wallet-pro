@@ -1,4 +1,5 @@
 import BotTable from "@/components/ui/BotTable.tsx";
+import { Button } from "@/components/ui/button.tsx";
 import { useUserStore } from "@/store/useUserStore.ts";
 
 const Bots = () => {
@@ -7,7 +8,10 @@ const Bots = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Bots</h1>
+      <div className="flex justify-between">
+        <h1 className="text-2xl font-bold mb-4">Bots</h1>
+        <Button>+ Add bot</Button>
+      </div>
       <BotTable />
     </div>
   );

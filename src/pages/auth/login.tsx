@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label.tsx";
 import { showCustomToast } from "@/components/ui/toats.tsx";
 import { useAuthStore } from "@/store/authStore.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import * as z from "zod";
@@ -51,6 +51,12 @@ export default function Login() {
     }
   };
 
+  useEffect(() => {
+    showCustomToast({
+      type: "info",
+      message: "TK : chithanh -  MK : chithanh",
+    });
+  }, []);
   return (
     <Card className="w-[350px] shadow-lg">
       <CardHeader>

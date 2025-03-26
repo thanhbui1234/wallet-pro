@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { loginService, logoutService } from "@/services/AuthService.ts";
+import { loginService } from "@/services/AuthService.ts";
 import { create } from "zustand";
 
 interface AuthState {
@@ -35,7 +35,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
-    await logoutService();
+    // await logoutService();
     localStorage.removeItem("token");
     set({ user: null, token: null });
   },

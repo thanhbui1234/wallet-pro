@@ -3,14 +3,14 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 // import AuthLayout from "../layouts/AuthLayout";
 import AuthLayout from "@/layouts/AuthLayout/index.tsx";
 import Layout from "@/layouts/MainLayout/index.tsx";
-import Login from "@/pages/auth/login.tsx";
-import Strategy from "@/pages/Strategy/index.tsx";
 import PrivateRoute from "@/routers/PrivateRouter.tsx";
 import PublicRoute from "@/routers/PublichRouter.tsx";
 import { lazy } from "react";
 
 const Bots = lazy(() => import("@/pages/Bot/index.tsx"));
-// const Login = lazy(() => import("../pages/Login"));
+const Strategy = lazy(() => import("@/pages/Strategy/index.tsx"));
+const Position = lazy(() => import("@/pages/Position/index.tsx"));
+const Login = lazy(() => import("@/pages/auth/login.tsx"));
 
 const router = createBrowserRouter([
   {
@@ -30,7 +30,7 @@ const router = createBrowserRouter([
         path: "/strategy",
       },
       {
-        element: <PrivateRoute element={<h1>huhu </h1>} />,
+        element: <PrivateRoute element={<Position />} />,
         path: "/position",
       },
     ],
