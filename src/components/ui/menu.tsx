@@ -1,4 +1,5 @@
 import AvatarHeader from "@/components/ui/Header/avatar.tsx";
+import Right from "@/components/ui/Header/Right/index.tsx";
 import { NavLink } from "react-router-dom";
 
 const navLinks = [
@@ -26,7 +27,7 @@ export default function Header() {
           </NavLink>
         ))}
       </nav>
-      <img src="/logo-right.png" alt="Right Logo" className="h-10 w-10" />
+      <Right />
     </header>
   );
 }

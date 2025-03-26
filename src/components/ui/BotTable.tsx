@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button.tsx";
+import DialogCustom from "@/components/ui/dialogCustom.tsx";
 import { Switch } from "@/components/ui/switch.tsx";
 import {
   Table,
@@ -10,7 +11,7 @@ import {
 } from "@/components/ui/table.tsx";
 import { ColumnDef } from "@tanstack/react-table";
 import { Pencil } from "lucide-react";
-import { useMemo } from "react";
+import { useState } from "react";
 import { RiExchangeCnyLine } from "react-icons/ri";
 
 interface Bot {
@@ -36,34 +37,213 @@ const bots: Bot[] = [
     u_id: "123",
     status: "inactive",
   },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
+  {
+    name: "tHÁ",
+    telegram: "123",
+    proxy: "123",
+    u_id: "123",
+    status: "inactive",
+  },
 ];
 
 export default function BotTable() {
-  const columns = useMemo<ColumnDef<Bot>[]>(
-    () => [
-      { accessorKey: "name", header: "Name" },
-      { accessorKey: "telegram", header: "Telegram" },
-      { accessorKey: "proxy", header: "Proxy" },
-      { accessorKey: "u_id", header: "u_id" },
-      {
-        accessorKey: "actions",
-        header: "Actions",
-        cell: () => (
-          <div className="flex gap-2">
+  const [isOpen, setIsOpen] = useState(false);
+  const [isOpenTransfer, setIsOpenTransfer] = useState(false);
+  const [selectedBot, setSelectedBot] = useState<Bot | null>(null);
+
+  const handleOpenDialog = (bot: Bot) => {
+    console.log(123);
+
+    setSelectedBot(bot);
+    setIsOpen(true);
+  };
+
+  const columns: ColumnDef<Bot>[] = [
+    { accessorKey: "name", header: "Name" },
+    { accessorKey: "telegram", header: "Telegram" },
+    { accessorKey: "proxy", header: "Proxy" },
+    { accessorKey: "u_id", header: "u_id" },
+    {
+      accessorKey: "actions",
+      header: "Actions",
+      cell: () => {
+        return (
+          <div className="flex gap-3">
             <Button size="icon" variant="outline">
               <Pencil className="h-4 w-4" />
             </Button>
+            <Switch className="mt-2" />
+            <RiExchangeCnyLine size={19} className="mt-2" />
           </div>
-        ),
+        );
       },
-    ],
-    []
-  );
+    },
+  ];
 
   return (
     <div className="border rounded-lg shadow-lg p-6 bg-white">
-      <div className="flex justify-between items-center mb-4"></div>
-      <Table className="rounded-lg border">
+      <Table className="rounded-lg border ">
         <TableHeader className="bg-gray-100">
           <TableRow>
             {columns.map((col) => (
@@ -89,17 +269,41 @@ export default function BotTable() {
               <TableCell>{bot.u_id}</TableCell>
               <TableCell>
                 <div className="flex gap-3">
-                  <Button size="icon" variant="outline">
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() => handleOpenDialog(bot)}
+                  >
                     <Pencil className="h-4 w-4" />
                   </Button>
                   <Switch className="mt-2" />
-                  <RiExchangeCnyLine size={19} className="mt-2" />
+                  <RiExchangeCnyLine
+                    onClick={() => handleOpenDialog(bot)}
+                    size={19}
+                    className="mt-2"
+                  />
                 </div>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+
+      {/* Dialog Custom for edit */}
+      <DialogCustom open={isOpen} onOpenChange={setIsOpen}>
+        <p>
+          {selectedBot ? (
+            <>
+              Bạn đang chỉnh sửa bot: <strong>{selectedBot.name}</strong>
+            </>
+          ) : (
+            "Không có bot nào được chọn"
+          )}
+        </p>
+      </DialogCustom>
+      <DialogCustom open={isOpenTransfer} onOpenChange={setIsOpenTransfer}>
+        <p>Tranfer</p>
+      </DialogCustom>
     </div>
   );
 }

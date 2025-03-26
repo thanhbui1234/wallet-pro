@@ -39,5 +39,9 @@ export const loginService = async (username: string, password: string) => {
 };
 
 export const logoutService = async () => {
-  return await api.post("/logout");
+  try {
+    await api.post("/logout");
+  } catch (error) {
+    console.log(error);
+  }
 };
