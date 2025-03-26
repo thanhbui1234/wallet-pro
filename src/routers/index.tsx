@@ -4,6 +4,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import AuthLayout from "@/layouts/AuthLayout/index.tsx";
 import Layout from "@/layouts/MainLayout/index.tsx";
 import Login from "@/pages/auth/login.tsx";
+import Strategy from "@/pages/Strategy/index.tsx";
 import PrivateRoute from "@/routers/PrivateRouter.tsx";
 import PublicRoute from "@/routers/PublichRouter.tsx";
 import { lazy } from "react";
@@ -25,7 +26,7 @@ const router = createBrowserRouter([
         path: "/bot",
       },
       {
-        element: <PrivateRoute element={<h1>hihi</h1>} />,
+        element: <PrivateRoute element={<Strategy />} />,
         path: "/strategy",
       },
       {
