@@ -7,7 +7,7 @@ const Bots = () => {
   console.log(users, "123");
 
   return (
-    <div className=" w-full p-3">
+    <div className=" w-full ">
       <div className="flex justify-between">
         <h1 className="text-2xl font-bold mb-4">Bots</h1>
         <Button>+ Add bot</Button>
