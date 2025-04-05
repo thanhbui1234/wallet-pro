@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { loginService } from "@/services/AuthService.ts";
+import { showCustomToast } from "@/components/ui/toats.tsx";
+import { loginService, logoutService } from "@/services/AuthService.ts";
 import { create } from "zustand";
 
 interface AuthState {
@@ -8,35 +8,48 @@ interface AuthState {
   token: string | null;
   loading: boolean;
   error: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
-// Lấy token từ localStorage khi app khởi động
+// Get token from localStorage when the app starts
 const storedToken = localStorage.getItem("token");
+
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   token: storedToken,
   loading: false,
   error: null,
 
-  login: async (email, password) => {
+  login: async (username, password) => {
     set({ loading: true, error: null });
     try {
-      const response = await loginService(email, password);
+      const response = await loginService(username, password);
       if (response) {
-        const { token, user } = response;
-        localStorage.setItem("token", token);
-        set({ user, token, loading: false });
+        showCustomToast({
+          type: "success",
+          message: "Login successfully",
+        });
+        const { token } = response;
+        set({ token, loading: false });
+        window.location.href = "/"; // Redirect after successful login
       }
     } catch (error: any) {
       set({ error: "Login failed", loading: false });
+      showCustomToast({
+        type: "error",
+        message: error?.response?.data?.message || "Login failed",
+      });
     }
   },
 
   logout: async () => {
-    // await logoutService();
-    localStorage.removeItem("token");
-    set({ user: null, token: null });
+    try {
+      await logoutService();
+      set({ user: null, token: null });
+      window.location.href = "/login"; // Redirect after logout
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   },
 }));

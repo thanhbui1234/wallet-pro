@@ -213,8 +213,6 @@ export default function BotTable() {
   const [selectedBot, setSelectedBot] = useState<Bot | null>(null);
 
   const handleOpenDialog = (bot: Bot) => {
-    console.log(123);
-
     setSelectedBot(bot);
     setIsOpen(true);
   };

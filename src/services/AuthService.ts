@@ -1,47 +1,26 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { api } from "@/core/api.ts";
 
 interface LoginResponse {
   token: string;
 }
 
-export const login = async (
+export const loginService = async (
   username: string,
   password: string
 ): Promise<LoginResponse> => {
-  if (username === "chithanh" && password === "chithanh") {
-    const token = "1232132132132131"; // Token giả định
+  const response = await api.post("/auth/login", { username, password });
+  const { token } = response.data;
+  if (token) {
     localStorage.setItem("token", token);
-    return { token };
-  } else {
-    throw new Error("Invalid credentials");
   }
-};
-
-export const logout = () => {
-  localStorage.removeItem("token");
-  window.location.href = "/login";
-};
-
-export const loginService = async (username: string, password: string) => {
-  try {
-    // have not yet api
-    // const response = await axiosInstance.post("/login", { email, password });
-    if (username === "chithanh" && password === "chithanh") {
-      const token = "1232132132132131"; // Token giả định
-      const user = { "name ": "thanh" };
-      return { token, user };
-    }
-  } catch (error: any) {
-    console.log(error);
-  }
+  return response.data;
 };
 
 export const logoutService = async () => {
   try {
     await api.post("/logout");
+    localStorage.removeItem("token");
   } catch (error) {
-    console.log(error);
+    console.log("Logout error:", error);
   }
 };

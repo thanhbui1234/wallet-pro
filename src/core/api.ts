@@ -3,8 +3,11 @@ import { getTokenAuth } from "@/utils/token.ts";
 import axios from "axios";
 import { toast } from "sonner";
 
+// Flag để tránh check lỗi 401 khi login
+let isLoginRequest = false;
+
 export const api = axios.create({
-  baseURL: "https://your-api.com/api",
+  baseURL: import.meta.env.VITE_BASE_URL,
   timeout: 10000,
 });
 
@@ -15,6 +18,12 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    console.log(config);
+
+    if (config.url?.includes("/auth/login")) {
+      isLoginRequest = true;
+    }
+
     return config;
   },
   (error) => Promise.reject(error)
@@ -22,18 +31,19 @@ api.interceptors.request.use(
 
 // Global error handling without refresh-token logic
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    isLoginRequest = false;
+    return response;
+  },
   (error) => {
     const status = error.response?.status;
-    const msg = error.response?.data?.message || "Something went wrong";
+    console.log(isLoginRequest, "isLoginRequest");
 
-    if (status === 401) {
+    if (status === 401 && !isLoginRequest) {
       toast.error("Unauthorized. Please login again.");
-      // Optional: redirect to login page here if needed
-    } else {
-      toast.error(msg);
     }
 
+    isLoginRequest = false;
     return Promise.reject(error);
   }
 );

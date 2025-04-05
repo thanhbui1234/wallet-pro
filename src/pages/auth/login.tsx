@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from "@/components/ui/button.tsx";
 import {
   Card,
@@ -8,12 +7,10 @@ import {
 } from "@/components/ui/card.tsx";
 import { Input } from "@/components/ui/input.tsx";
 import { Label } from "@/components/ui/label.tsx";
-import { showCustomToast } from "@/components/ui/toats.tsx";
 import { useAuthStore } from "@/store/authStore.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import * as z from "zod";
 
 // Schema validation với zod
@@ -24,31 +21,19 @@ const loginSchema = z.object({
 
 export default function Login() {
   const [errorMessage, setErrorMessage] = useState("");
-  const { login } = useAuthStore();
-  const navigate = useNavigate();
+  const { login, loading } = useAuthStore();
+  console.log(loading);
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm({
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: { username: string; password: string }) => {
-    try {
-      await login(data.username, data.password);
-      navigate("/");
-      showCustomToast({
-        type: "success",
-        message: "Operation completed successfully!",
-      });
-      setErrorMessage("");
-    } catch (error: any) {
-      showCustomToast({
-        type: "success",
-        message: error,
-      });
-    }
+  const onSubmit = (data: { username: string; password: string }) => {
+    login(data.username, data.password);
+    setErrorMessage("");
   };
 
   return (
@@ -93,8 +78,8 @@ export default function Login() {
           {errorMessage && (
             <p className="text-red-500 text-sm mb-4">{errorMessage}</p>
           )}
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Đang đăng nhập..." : "Đăng nhập"}
           </Button>
         </form>
       </CardContent>
