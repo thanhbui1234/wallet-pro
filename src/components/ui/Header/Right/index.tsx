@@ -17,7 +17,7 @@ const Right = () => {
   const { logout } = useAuthStore();
 
   const handleLogout = () => {
-    logout();
+    logout(navigate);
     navigate("/login");
     showCustomToast({
       type: "success",

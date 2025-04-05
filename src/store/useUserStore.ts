@@ -10,7 +10,6 @@ interface UserState {
 export const useUserStore = create<UserState>((set) => ({
   users: [],
   setUsers: (users) => {
-    console.log("Setting users:", users); // Debugging log
     set({ users });
   },
 }));

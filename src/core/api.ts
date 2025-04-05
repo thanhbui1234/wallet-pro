@@ -18,7 +18,6 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    console.log(config);
 
     if (config.url?.includes("/auth/login")) {
       isLoginRequest = true;
@@ -33,11 +32,10 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     isLoginRequest = false;
-    return response;
+    return response.data;
   },
   (error) => {
     const status = error.response?.status;
-    console.log(isLoginRequest, "isLoginRequest");
 
     if (status === 401 && !isLoginRequest) {
       toast.error("Unauthorized. Please login again.");

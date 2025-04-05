@@ -1,9 +1,8 @@
 import PositionTable from "@/components/ui/PositionTable.tsx";
-import { useUserStore } from "@/store/useUserStore.ts";
 
 const Position = () => {
-  const { users } = useUserStore();
-  console.log(users, "123");
+  // const { users } = useUserStore();
+  // console.log(users, "123");
 
   return (
     <div className=" w-full ">

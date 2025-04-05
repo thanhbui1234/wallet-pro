@@ -11,6 +11,7 @@ import { useAuthStore } from "@/store/authStore.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import * as z from "zod";
 
 // Schema validation với zod
@@ -20,9 +21,10 @@ const loginSchema = z.object({
 });
 
 export default function Login() {
+  const navigate = useNavigate();
+  // State để lưu trữ lỗi nếu có lỗi từ API hoặc schem
   const [errorMessage, setErrorMessage] = useState("");
   const { login, loading } = useAuthStore();
-  console.log(loading);
   const {
     register,
     handleSubmit,
@@ -32,7 +34,7 @@ export default function Login() {
   });
 
   const onSubmit = (data: { username: string; password: string }) => {
-    login(data.username, data.password);
+    login(data.username, data.password, navigate);
     setErrorMessage("");
   };
 

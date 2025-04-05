@@ -16,12 +16,9 @@ const Layout = () => {
   });
 
   // Debugging logs
-  console.log("Fetched data from API:", data);
-  console.log("Users from store:", users);
 
   useEffect(() => {
     if (data && users.length === 0) {
-      console.log("Updating Zustand store with fetched data.");
       setUsers(data);
     }
   }, [data, users, setUsers]);

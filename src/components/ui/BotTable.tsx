@@ -1,6 +1,3 @@
-import { Button } from "@/components/ui/button.tsx";
-import DialogCustom from "@/components/ui/dialogCustom.tsx";
-import { Switch } from "@/components/ui/switch.tsx";
 import {
   Table,
   TableBody,
@@ -9,299 +6,178 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table.tsx";
-import { ColumnDef } from "@tanstack/react-table";
-import { Pencil } from "lucide-react";
-import { useState } from "react";
-import { RiExchangeCnyLine } from "react-icons/ri";
+import { changeBotStatus, deleteBot, getBots } from "@/services/BotServices.ts";
+import {
+  Bot,
+  showErrorToast,
+  showSuccessToast,
+  useBotStore,
+} from "@/store/botStore.ts";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Edit, Trash } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Button } from "./button.tsx";
+import { Switch } from "./switch.tsx";
 
-interface Bot {
-  name: string;
-  telegram: string;
-  proxy: string;
-  u_id: string;
-  status: "active" | "inactive";
-}
+const BotTable = () => {
+  const selectBot = useBotStore((state) => state.selectBot);
+  const openDialog = useBotStore((state) => state.openDialog);
 
-const bots: Bot[] = [
-  {
-    name: "Meowwww11",
-    telegram: "-4662145730",
-    proxy: "103.190.37.250:21330:nhro5619:NE/fab3647",
-    u_id: "WEB4C7505...",
-    status: "active",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-  {
-    name: "tHÁ",
-    telegram: "123",
-    proxy: "123",
-    u_id: "123",
-    status: "inactive",
-  },
-];
+  // Remove console.log
+  // console.log(selectBot, "selectBot");
 
-export default function BotTable() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isOpenTransfer, setIsOpenTransfer] = useState(false);
-  const [selectedBot, setSelectedBot] = useState<Bot | null>(null);
+  const queryClient = useQueryClient();
 
-  const handleOpenDialog = (bot: Bot) => {
-    setSelectedBot(bot);
-    setIsOpen(true);
+  // Fetch bots data using React Query
+  const { data, isLoading } = useQuery({
+    queryKey: ["bots"],
+    queryFn: getBots,
+    select: (response) => {
+      // Check if response has a data property (common API pattern)
+      if (response && response.data) {
+        return response.data;
+      }
+      // If response is already the array we need
+      return response || [];
+    },
+  });
+
+  const bots = Array.isArray(data) ? data : [];
+
+  // Delete bot mutation
+  const deleteBotMutation = useMutation({
+    mutationFn: deleteBot,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bots"] });
+      showSuccessToast("Bot deleted successfully");
+    },
+    onError: (error) => {
+      showErrorToast(error);
+    },
+  });
+
+  const handleDelete = (id: string) => {
+    if (window.confirm("Are you sure you want to delete this bot?")) {
+      deleteBotMutation.mutate(id);
+    }
   };
 
-  const columns: ColumnDef<Bot>[] = [
-    { accessorKey: "name", header: "Name" },
-    { accessorKey: "telegram", header: "Telegram" },
-    { accessorKey: "proxy", header: "Proxy" },
-    { accessorKey: "u_id", header: "u_id" },
-    {
-      accessorKey: "actions",
-      header: "Actions",
-      cell: () => {
-        return (
-          <div className="flex gap-3">
-            <Button size="icon" variant="outline">
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Switch className="mt-2" />
-            <RiExchangeCnyLine size={19} className="mt-2" />
-          </div>
-        );
-      },
+  // State to track which bots are active
+  const [activeBots, setActiveBots] = useState<Record<string, boolean>>({});
+
+  // Add status change mutation
+  const changeBotStatusMutation = useMutation({
+    mutationFn: ({ botId, isActive }: { botId: string; isActive: boolean }) =>
+      changeBotStatus(botId, isActive),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bots"] });
+      showSuccessToast("Bot status updated successfully");
     },
-  ];
+    onError: (error) => {
+      showErrorToast(error);
+    },
+  });
+
+  // Initialize activeBots state from the fetched data
+  useEffect(() => {
+    if (bots && bots.length > 0) {
+      const initialStatus: Record<string, boolean> = {};
+      bots.forEach((bot: Bot) => {
+        initialStatus[bot.id as string] = bot.status === 1;
+      });
+      setActiveBots(initialStatus);
+    }
+  }, [bots]);
+
+  const toggleBotStatus = (botId: string) => {
+    const newStatus = !activeBots[botId];
+
+    // Update local state
+    setActiveBots((prev) => ({
+      ...prev,
+      [botId]: newStatus,
+    }));
+
+    // Call the API to update the bot status
+    changeBotStatusMutation.mutate({
+      botId,
+      isActive: newStatus,
+    });
+  };
+
+  // Handle edit function to select bot and open dialog
+  const handleEdit = (bot: Bot) => {
+    selectBot(bot);
+    openDialog();
+  };
 
   return (
-    <div className="border rounded-lg shadow-lg p-6 bg-white">
-      <Table className="rounded-lg border ">
-        <TableHeader className="bg-gray-100">
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
           <TableRow>
-            {columns.map((col) => (
-              <TableHead
-                key={
-                  "accessorKey" in col
-                    ? (col.accessorKey as string)
-                    : (col.header as string)
-                }
-                className="text-left p-3"
-              >
-                {col.header as string}
-              </TableHead>
-            ))}
+            <TableHead>Action</TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead>User ID</TableHead>
+            <TableHead>Access Key</TableHead>
+            <TableHead>Proxy</TableHead>
+            <TableHead>Telegram ID</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {bots.map((bot, i) => (
-            <TableRow key={i} className="hover:bg-gray-50">
-              <TableCell>{bot.name}</TableCell>
-              <TableCell>{bot.telegram}</TableCell>
-              <TableCell>{bot.proxy}</TableCell>
-              <TableCell>{bot.u_id}</TableCell>
-              <TableCell>
-                <div className="flex gap-3">
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={() => handleOpenDialog(bot)}
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Switch className="mt-2" />
-                  <RiExchangeCnyLine
-                    onClick={() => handleOpenDialog(bot)}
-                    size={19}
-                    className="mt-2"
-                  />
-                </div>
+          {isLoading ? (
+            <TableRow>
+              <TableCell colSpan={5} className="text-center h-24">
+                Loading...
               </TableCell>
             </TableRow>
-          ))}
+          ) : bots.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={5} className="text-center h-24">
+                No bots found. Create your first bot!
+              </TableCell>
+            </TableRow>
+          ) : (
+            bots.map((bot: Bot) => (
+              <TableRow key={bot.id}>
+                <TableCell>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      checked={!!activeBots[bot.id as string]}
+                      onCheckedChange={() => toggleBotStatus(bot.id as string)}
+                      disabled={changeBotStatusMutation.isPending}
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(bot)}
+                      className="p-1 h-8 w-8"
+                    >
+                      <Edit size={16} />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDelete(bot.id as string)}
+                      className="p-1 h-8 w-8 text-red-500 hover:text-red-700"
+                      disabled={deleteBotMutation.isPending}
+                    >
+                      <Trash size={16} />
+                    </Button>
+                  </div>
+                </TableCell>
+                <TableCell>{bot.name}</TableCell>
+                <TableCell>{bot.u_id}</TableCell>
+                <TableCell>{bot.accessKey}</TableCell>
+                <TableCell>{bot.proxy}</TableCell>
+                <TableCell>{bot.telegramId || "-"}</TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
-
-      {/* Dialog Custom for edit */}
-      <DialogCustom open={isOpen} onOpenChange={setIsOpen}>
-        <p>
-          {selectedBot ? (
-            <>
-              Bạn đang chỉnh sửa bot: <strong>{selectedBot.name}</strong>
-            </>
-          ) : (
-            "Không có bot nào được chọn"
-          )}
-        </p>
-      </DialogCustom>
-      <DialogCustom open={isOpenTransfer} onOpenChange={setIsOpenTransfer}>
-        <p>Tranfer</p>
-      </DialogCustom>
     </div>
   );
-}
+};
+
+export default BotTable;

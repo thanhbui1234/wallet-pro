@@ -1,9 +1,8 @@
 import StrategyTable from "@/components/ui/strategy.tsx";
-import { useUserStore } from "@/store/useUserStore.ts";
 
 const Strategy = () => {
-  const { users } = useUserStore();
-  console.log(users, "123");
+  // const { users } = useUserStore();
+  // console.log(users, "123");
 
   return (
     <div className=" w-full ">
