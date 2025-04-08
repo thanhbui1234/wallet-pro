@@ -26,6 +26,7 @@ const strategies = [
       {
         id: 1,
         name: "Meowwww",
+        tradeType: "LONG",
         interval: "Min5",
         oc: "5.5%",
         amount: "100$",
@@ -39,6 +40,7 @@ const strategies = [
       {
         id: 2,
         name: "BotX",
+        tradeType: "SHORT",
         interval: "Min10",
         oc: "4.3%",
         amount: "200$",
@@ -123,7 +125,7 @@ const strategies = [
   },
 ];
 
-export default function StrategyTable() {
+const StrategyTable = () => {
   const [selectedSymbol, setSelectedSymbol] = useState("");
   const [selectedBot, setSelectedBot] = useState("");
   const [expandedStrategies, setExpandedStrategies] = useState<{
@@ -156,9 +158,10 @@ export default function StrategyTable() {
 
   // Filter strategies based on selectedSymbol and selectedBot
   const filteredStrategies = strategiesState.filter((strategy) => {
-    const matchesSymbol = selectedSymbol
-      ? strategy.name.includes(selectedSymbol)
-      : true;
+    const matchesSymbol =
+      selectedSymbol === "all" || selectedSymbol === ""
+        ? true
+        : strategy.name.includes(selectedSymbol);
     const matchesBot = selectedBot
       ? strategy.bots.some((bot) => bot.name.includes(selectedBot))
       : true;
@@ -168,61 +171,64 @@ export default function StrategyTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between">
-        {/* Filter Section */}
+      <div className="flex justify-between items-center mb-4">
         <div className="flex gap-4 items-center">
           <Select onValueChange={setSelectedSymbol}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Symbol" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={null}>All Symbols</SelectItem>
-              <SelectItem value="BTC_USDT">BTC_USDT</SelectItem>
-              <SelectItem value="ETH_USDT">ETH_USDT</SelectItem>
+              <SelectItem value="all">All Symbols</SelectItem>
+              {strategies.map((strategy) => (
+                <SelectItem key={strategy.name} value={strategy.name}>
+                  {strategy.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
           <Select onValueChange={setSelectedBot}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Bot" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={null}>All Bots</SelectItem>
-              <SelectItem value="Meowwww">Meowwww</SelectItem>
-              <SelectItem value="BotX">BotX</SelectItem>
+              <SelectItem value="all">All Bots</SelectItem>
+              {strategies
+                .flatMap((strategy) =>
+                  strategy.bots.map((bot) => (
+                    <SelectItem key={bot.id} value={bot.name}>
+                      {bot.name}
+                    </SelectItem>
+                  ))
+                )
+                .filter(
+                  (bot, index, self) =>
+                    index ===
+                    self.findIndex((t) => t.props.value === bot.props.value)
+                )}
             </SelectContent>
           </Select>
 
-          <Button variant="outline">Reset</Button>
+          <Button variant="outline" size="sm">
+            Reset
+          </Button>
         </div>
-
-        {/* Apply All Buttons (Outside of Table) */}
-        <div className="flex gap-4">
-          {!applyAllState ? (
-            <Button
-              variant="outline"
-              onClick={() => applyAllBotsState(true)} // Apply "On" to all bots
-            >
-              Apply All On
-            </Button>
-          ) : (
-            <Button
-              variant="outline"
-              onClick={() => applyAllBotsState(false)} // Apply "Off" to all bots
-            >
-              Apply All Off
-            </Button>
-          )}
-        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => applyAllBotsState(!applyAllState)}
+        >
+          Apply All
+        </Button>
       </div>
 
-      {/* Strategy Table */}
-      <Card className="p-4 shadow-md border rounded-lg mt-4">
+      <Card className="p-4">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead className="w-20">Action</TableHead>
+            <TableRow className="bg-muted/50">
+              <TableHead className="w-[100px]">Action</TableHead>
               <TableHead>Bot</TableHead>
+              <TableHead>Type</TableHead>
               <TableHead>Int</TableHead>
               <TableHead>OC</TableHead>
               <TableHead>Amount</TableHead>
@@ -236,61 +242,67 @@ export default function StrategyTable() {
           <TableBody>
             {filteredStrategies.map((strategy) => (
               <React.Fragment key={strategy.name}>
-                {/* Strategy Row */}
                 <TableRow
-                  className="bg-gray-100 font-semibold cursor-pointer"
+                  className="hover:bg-muted/50 cursor-pointer"
                   onClick={() => toggleStrategyVisibility(strategy.name)}
                 >
                   <TableCell colSpan={10}>
                     <div className="flex items-center gap-2">
                       {expandedStrategies[strategy.name] ? (
-                        <FaChevronDown className="w-4 h-4 text-gray-500" />
+                        <FaChevronDown className="w-3 h-3" />
                       ) : (
-                        <FaChevronRight className="w-4 h-4 text-gray-500" />
+                        <FaChevronRight className="w-3 h-3" />
                       )}
-                      {strategy.name}
+                      <span className="font-medium">{strategy.name}</span>
                     </div>
                   </TableCell>
                 </TableRow>
 
-                {/* Bot Rows */}
                 {expandedStrategies[strategy.name] &&
-                  strategy.bots.map((bot) => (
-                    <TableRow key={bot.id}>
-                      <TableCell>
-                        <Switch
-                          checked={bot.active}
-                          onChange={() => {
-                            setStrategiesState((prevStrategies) => {
-                              return prevStrategies.map((s) => {
-                                if (s.name === strategy.name) {
-                                  return {
+                  strategy.bots.map(
+                    (bot) => (
+                      console.log(bot),
+                      (
+                        <TableRow key={bot.id} className="hover:bg-muted/50">
+                          <TableCell className="flex items-center gap-2">
+                            <Switch
+                              checked={bot.active}
+                              onCheckedChange={() => {
+                                setStrategiesState((prev) =>
+                                  prev.map((s) => ({
                                     ...s,
-                                    bots: s.bots.map((b) => {
-                                      if (b.id === bot.id) {
-                                        return { ...b, active: !b.active }; // Toggle the active state of the bot
-                                      }
-                                      return b;
-                                    }),
-                                  };
-                                }
-                                return s;
-                              });
-                            });
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>{bot.name}</TableCell>
-                      <TableCell>{bot.interval}</TableCell>
-                      <TableCell>{bot.oc}</TableCell>
-                      <TableCell>{bot.amount}</TableCell>
-                      <TableCell>{bot.extend}</TableCell>
-                      <TableCell>{bot.tp}</TableCell>
-                      <TableCell>{bot.reduce}</TableCell>
-                      <TableCell>{bot.up}</TableCell>
-                      <TableCell>{bot.ignore}</TableCell>
-                    </TableRow>
-                  ))}
+                                    bots: s.bots.map((b) =>
+                                      b.id === bot.id
+                                        ? { ...b, active: !b.active }
+                                        : b
+                                    ),
+                                  }))
+                                );
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell>{bot.name}</TableCell>
+                          <TableCell>{bot?.tradeType}</TableCell>
+                          <TableCell>{bot.interval}</TableCell>
+                          <TableCell className="text-right">{bot.oc}</TableCell>
+                          <TableCell className="text-right">
+                            {bot.amount}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {bot.extend}
+                          </TableCell>
+                          <TableCell className="text-right">{bot.tp}</TableCell>
+                          <TableCell className="text-right">
+                            {bot.reduce}
+                          </TableCell>
+                          <TableCell className="text-right">{bot.up}</TableCell>
+                          <TableCell className="text-right">
+                            {bot.ignore}
+                          </TableCell>
+                        </TableRow>
+                      )
+                    )
+                  )}
               </React.Fragment>
             ))}
           </TableBody>
@@ -298,4 +310,6 @@ export default function StrategyTable() {
       </Card>
     </div>
   );
-}
+};
+
+export default StrategyTable;

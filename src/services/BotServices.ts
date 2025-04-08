@@ -32,7 +32,7 @@ export const updateBot = async (botData: Partial<BotData>) => {
 
 export const changeBotStatus = async (botId: string, isActive: boolean) => {
   const statusValue = isActive ? 1 : 0;
-  const response = await api.patch(`/bot/status`, {
+  const response = await api.post(`/bot/status`, {
     status: statusValue,
     botId: botId,
   });

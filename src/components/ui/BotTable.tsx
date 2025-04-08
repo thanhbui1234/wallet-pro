@@ -15,7 +15,7 @@ import {
 } from "@/store/botStore.ts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Edit, Trash } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "./button.tsx";
 import { Switch } from "./switch.tsx";
 
@@ -65,47 +65,44 @@ const BotTable = () => {
   // State to track which bots are active
   const [activeBots, setActiveBots] = useState<Record<string, boolean>>({});
 
-  // Add status change mutation
   const changeBotStatusMutation = useMutation({
     mutationFn: ({ botId, isActive }: { botId: string; isActive: boolean }) =>
       changeBotStatus(botId, isActive),
+    onMutate: () => {
+      return { isLoading: true };
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bots"] });
       showSuccessToast("Bot status updated successfully");
     },
-    onError: (error) => {
+    onError: (error, variables) => {
+      // Revert the optimistic update on error
+      setActiveBots((prev) => ({
+        ...prev,
+        [variables.botId]: !variables.isActive,
+      }));
       showErrorToast(error);
     },
+    onSettled: () => {
+      // Clear loading state after mutation completes (success or error)
+      return { isLoading: false };
+    },
   });
-
-  // Initialize activeBots state from the fetched data
-  useEffect(() => {
-    if (bots && bots.length > 0) {
-      const initialStatus: Record<string, boolean> = {};
-      bots.forEach((bot: Bot) => {
-        initialStatus[bot.id as string] = bot.status === 1;
-      });
-      setActiveBots(initialStatus);
-    }
-  }, [bots]);
 
   const toggleBotStatus = (botId: string) => {
     const newStatus = !activeBots[botId];
 
-    // Update local state
     setActiveBots((prev) => ({
       ...prev,
       [botId]: newStatus,
     }));
 
-    // Call the API to update the bot status
     changeBotStatusMutation.mutate({
       botId,
       isActive: newStatus,
     });
   };
 
-  // Handle edit function to select bot and open dialog
   const handleEdit = (bot: Bot) => {
     selectBot(bot);
     openDialog();
@@ -138,41 +135,48 @@ const BotTable = () => {
               </TableCell>
             </TableRow>
           ) : (
-            bots.map((bot: Bot) => (
-              <TableRow key={bot.id}>
-                <TableCell>
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      checked={!!activeBots[bot.id as string]}
-                      onCheckedChange={() => toggleBotStatus(bot.id as string)}
-                      disabled={changeBotStatusMutation.isPending}
-                    />
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(bot)}
-                      className="p-1 h-8 w-8"
-                    >
-                      <Edit size={16} />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(bot.id as string)}
-                      className="p-1 h-8 w-8 text-red-500 hover:text-red-700"
-                      disabled={deleteBotMutation.isPending}
-                    >
-                      <Trash size={16} />
-                    </Button>
-                  </div>
-                </TableCell>
-                <TableCell>{bot.name}</TableCell>
-                <TableCell>{bot.u_id}</TableCell>
-                <TableCell>{bot.accessKey}</TableCell>
-                <TableCell>{bot.proxy}</TableCell>
-                <TableCell>{bot.telegramId || "-"}</TableCell>
-              </TableRow>
-            ))
+            bots.map(
+              (bot: Bot) => (
+                console.log(bot, "bot"),
+                (
+                  <TableRow key={bot.id}>
+                    <TableCell>
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          checked={!!activeBots[bot.id as string]}
+                          onCheckedChange={() =>
+                            toggleBotStatus(bot.id as string)
+                          }
+                          disabled={changeBotStatusMutation.isPending}
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(bot)}
+                          className="p-1 h-8 w-8"
+                        >
+                          <Edit size={16} />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleDelete(bot.id as string)}
+                          className="p-1 h-8 w-8 text-red-500 hover:text-red-700"
+                          disabled={deleteBotMutation.isPending}
+                        >
+                          <Trash size={16} />
+                        </Button>
+                      </div>
+                    </TableCell>
+                    <TableCell>{bot.name}</TableCell>
+                    <TableCell>{bot.u_id}</TableCell>
+                    <TableCell>{bot.accessKey}</TableCell>
+                    <TableCell>{bot.proxy}</TableCell>
+                    <TableCell>{bot.telegramId || "-"}</TableCell>
+                  </TableRow>
+                )
+              )
+            )
           )}
         </TableBody>
       </Table>
