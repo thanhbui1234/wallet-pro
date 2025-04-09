@@ -22,12 +22,18 @@ export default defineConfig(({ mode }) => {
     // Optional: Add proxy configuration if needed for API calls
     server: {
       proxy: {
+        "/mexc": {
+          target: "https://contract.mexc.com",
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => path.replace(/^\/mexc/, ""),
+        },
         "/api": {
           target: env.API_URL || "http://160.250.246.44:3001/api/v1/",
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, ""),
         },
       },
-    },
+    }
   };
 });

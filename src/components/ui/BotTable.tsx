@@ -43,6 +43,9 @@ const BotTable = () => {
   });
 
   const bots = Array.isArray(data) ? data : [];
+  if (JSON.stringify(bots) !== sessionStorage.getItem("bots")) {
+    sessionStorage.setItem("bots", JSON.stringify(bots));
+  }
 
   // Delete bot mutation
   const deleteBotMutation = useMutation({
