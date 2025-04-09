@@ -6,7 +6,6 @@ const Strategy = () => {
 
   return (
     <div className=" w-full ">
-      <h1 className="text-2xl font-bold mb-4">Strategy</h1>
       <StrategyTable />
     </div>
   );
