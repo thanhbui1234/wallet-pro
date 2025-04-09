@@ -16,14 +16,36 @@ interface StrategyData {
   cs: number;
 }
 
+export interface StrategyResponse {
+  id: string;
+  symbol: string;
+  botId: string;
+  botName: string;
+  tradeType: string;
+  int: number;
+  oc: number;
+  ps: number;
+  extend: number;
+  amount: number;
+  takeProfit: number;
+  reduceTp: number;
+  upReduce: number;
+  ignore: number;
+  cs: number;
+  isActive: boolean;
+}
+
 export const getStrategies = async () => {
   const response = await api.get("/strategy");
-  return response.data;
+  console.log("response", response);
+
+  // Return the data directly since api.get already returns response.data
+  return response;
 };
 
 export const createStrategy = async (strategyData: StrategyData) => {
   const response = await api.post("/strategy", strategyData);
-  return response.data;
+  return response;
 };
 
 export const deleteStrategy = async (strategyIds: string[]) => {
@@ -32,5 +54,24 @@ export const deleteStrategy = async (strategyIds: string[]) => {
       ids: strategyIds,
     },
   });
-  return response.data;
+  return response;
+};
+
+export const updateStrategy = async (strategyData: {
+  id: string;
+  int?: number;
+  tradeType?: "BOTH" | "LONG" | "SHORT";
+  oc?: number;
+  amount?: number;
+  extend?: number;
+  takeProfit?: number;
+  reduceTp?: number;
+  upReduce?: number;
+  ignore?: number;
+  ps?: number;
+  cs?: number;
+  isActive?: boolean;
+}) => {
+  const response = await api.patch("/strategy", strategyData);
+  return response;
 };
