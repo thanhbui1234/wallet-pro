@@ -102,8 +102,8 @@ const StrategyTable = () => {
     const fetchSymbols = async () => {
       try {
         const res = await axios.get(`/mexc/api/v1/contract/ticker`);
-        const filtered = res.data.data
-          .map((item: any) => item.symbol)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const filtered = res.data.data.map((item: any) => item.symbol);
         setSymbolsList(filtered);
       } catch (error) {
         console.error("Failed to fetch symbols:", error);
@@ -217,23 +217,25 @@ const StrategyTable = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Strategies</h1>
-        <Button onClick={openDialog}>+ Add Strategy</Button>
+        <h1 className="text-lg font-bold">Strategies</h1>
+        <Button onClick={openDialog} size="sm" className="text-xs py-1 px-2">
+          + Add Strategy
+        </Button>
       </div>
 
       {isLoading ? (
-        <div className="text-center py-4">Loading strategies...</div>
+        <div className="text-center py-3 text-sm">Loading strategies...</div>
       ) : (
         <>
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex gap-4 items-center">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
+            <div className="flex flex-wrap gap-2 items-center">
               <Select onValueChange={setSelectedSymbol}>
-                <SelectTrigger className="w-[200px]">
+                <SelectTrigger className="w-[140px] h-8 text-xs">
                   <SelectValue placeholder="Symbol" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="text-xs">
                   <SelectItem value="all">All Symbols</SelectItem>
                   {strategiesState.map((strategy) => (
                     <SelectItem key={strategy.name} value={strategy.name}>
@@ -244,10 +246,10 @@ const StrategyTable = () => {
               </Select>
 
               <Select onValueChange={setSelectedBot}>
-                <SelectTrigger className="w-[200px]">
+                <SelectTrigger className="w-[140px] h-8 text-xs">
                   <SelectValue placeholder="Bot" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="text-xs">
                   <SelectItem value="all">All Bots</SelectItem>
                   {strategiesState
                     .flatMap((strategy) =>
@@ -265,7 +267,11 @@ const StrategyTable = () => {
                 </SelectContent>
               </Select>
 
-              <Button variant="outline" size="sm">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 text-xs py-1 px-2"
+              >
                 Reset
               </Button>
             </div>
@@ -273,179 +279,243 @@ const StrategyTable = () => {
               variant="outline"
               size="sm"
               onClick={() => applyAllBotsState(!applyAllState)}
+              className="h-8 text-xs py-1 px-2"
             >
               Apply All
             </Button>
           </div>
 
-          <Card className="p-4">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead className="w-[120px]">Actions</TableHead>
-                  <TableHead className="w-[180px]">Bot</TableHead>
-                  <TableHead className="w-[60px] text-center">Type</TableHead>
-                  <TableHead className="w-[60px] text-center">Int</TableHead>
-                  <TableHead className="w-[80px] text-right">OC</TableHead>
-                  <TableHead className="w-[100px] text-right">Amount</TableHead>
-                  <TableHead className="w-[80px] text-right">Extend</TableHead>
-                  <TableHead className="w-[80px] text-right">TP</TableHead>
-                  <TableHead className="w-[80px] text-right">Reduce</TableHead>
-                  <TableHead className="w-[60px] text-right">Up</TableHead>
-                  <TableHead className="w-[80px] text-right">Ignore</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredStrategies.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={11} className="text-center py-4">
-                      No strategies found
-                    </TableCell>
+          <Card className="p-2">
+            <div className="overflow-x-auto">
+              <Table className="text-xs">
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="w-[100px] py-2">Actions</TableHead>
+                    <TableHead className="w-[140px] py-2">Bot</TableHead>
+                    <TableHead className="w-[40px] text-center py-2">
+                      Type
+                    </TableHead>
+                    <TableHead className="w-[40px] text-center py-2">
+                      Int
+                    </TableHead>
+                    <TableHead className="w-[50px] text-right py-2">
+                      OC
+                    </TableHead>
+                    <TableHead className="w-[60px] text-right py-2">
+                      Amount
+                    </TableHead>
+                    <TableHead className="w-[50px] text-right py-2">
+                      Extend
+                    </TableHead>
+                    <TableHead className="w-[40px] text-right py-2">
+                      TP
+                    </TableHead>
+                    <TableHead className="w-[50px] text-right py-2">
+                      Reduce
+                    </TableHead>
+                    <TableHead className="w-[40px] text-right py-2">
+                      Up
+                    </TableHead>
+                    <TableHead className="w-[50px] text-right py-2">
+                      Ignore
+                    </TableHead>
                   </TableRow>
-                ) : (
-                  filteredStrategies.map((strategy) => (
-                    <React.Fragment key={strategy.name}>
-                      <TableRow
-                        className="hover:bg-muted/50 cursor-pointer"
-                        onClick={() => toggleStrategyVisibility(strategy.name)}
+                </TableHeader>
+                <TableBody>
+                  {filteredStrategies.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={11}
+                        className="text-center py-3 text-xs"
                       >
-                        <TableCell colSpan={11}>
-                          <div className="flex items-center gap-2">
-                            {expandedStrategies[strategy.name] ? (
-                              <FaChevronDown className="w-3 h-3" />
-                            ) : (
-                              <FaChevronRight className="w-3 h-3" />
-                            )}
-                            <span className="font-medium">{strategy.name}</span>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-
-                      {expandedStrategies[strategy.name] &&
-                        strategy.bots.map((bot) => (
-                          <TableRow key={bot.id} className="hover:bg-muted/50">
-                            <TableCell>
-                              <div className="flex items-center justify-start gap-2">
-                                <Switch
-                                  checked={bot.isActive}
-                                  onCheckedChange={() => {
-                                    setStrategiesState((prev) =>
-                                      prev.map((s) => ({
-                                        ...s,
-                                        bots: s.bots.map((b) =>
-                                          b.id === bot.id
-                                            ? { ...b, isActive: !b.isActive }
-                                            : b
-                                        ),
-                                      }))
-                                    );
-                                  }}
-                                />
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    openEditDialog(bot);
-                                  }}
-                                >
-                                  <FaEdit className="h-4 w-4 text-blue-500" />
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={(e) => {
-                                    handleDeleteStrategy(bot.id, e);
-                                  }}
-                                >
-                                  <FaTrash className="h-4 w-4 text-red-500" />
-                                </Button>
-                              </div>
-                            </TableCell>
-                            <TableCell>{bot.botName}</TableCell>
-                            <TableCell className="text-center">
-                              {bot.tradeType === "LONG" ? (
-                                <FaArrowUp className="text-green-500 mx-auto" />
-                              ) : bot.tradeType === "SHORT" ? (
-                                <FaArrowDown className="text-red-500 mx-auto" />
+                        No strategies found
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredStrategies.map((strategy) => (
+                      <React.Fragment key={strategy.name}>
+                        <TableRow
+                          className="hover:bg-muted/50 cursor-pointer"
+                          onClick={() =>
+                            toggleStrategyVisibility(strategy.name)
+                          }
+                        >
+                          <TableCell colSpan={11} className="py-2">
+                            <div className="flex items-center gap-1">
+                              {expandedStrategies[strategy.name] ? (
+                                <FaChevronDown className="w-2 h-2" />
                               ) : (
-                                bot.tradeType
+                                <FaChevronRight className="w-2 h-2" />
                               )}
-                            </TableCell>
-                            <TableCell className="text-center">
-                              Min {bot.int}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {bot.oc}%
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {bot.amount}$
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {bot.extend}%
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {bot.takeProfit}%
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {bot.reduceTp}%
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {bot.upReduce}%
-                            </TableCell>
-                            <TableCell className="text-right">
-                              {bot.ignore}%
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                    </React.Fragment>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+                              <span className="font-medium text-xs">
+                                {strategy.name}
+                              </span>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+
+                        {expandedStrategies[strategy.name] &&
+                          strategy.bots.map((bot) => (
+                            <TableRow
+                              key={bot.id}
+                              className="hover:bg-muted/50"
+                            >
+                              <TableCell className="py-1">
+                                <div className="flex items-center justify-start gap-1">
+                                  <Switch
+                                    checked={bot.isActive}
+                                    onCheckedChange={() => {
+                                      setStrategiesState((prev) =>
+                                        prev.map((s) => ({
+                                          ...s,
+                                          bots: s.bots.map((b) =>
+                                            b.id === bot.id
+                                              ? { ...b, isActive: !b.isActive }
+                                              : b
+                                          ),
+                                        }))
+                                      );
+                                    }}
+                                    className="scale-75"
+                                  />
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openEditDialog(bot);
+                                    }}
+                                    className="h-6 w-6"
+                                  >
+                                    <FaEdit className="h-3 w-3 text-blue-500" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={(e) => {
+                                      handleDeleteStrategy(bot.id, e);
+                                    }}
+                                    className="h-6 w-6"
+                                  >
+                                    <FaTrash className="h-3 w-3 text-red-500" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                              <TableCell className="py-1 text-xs">
+                                {bot.botName}
+                              </TableCell>
+                              <TableCell className="text-center py-1">
+                                {bot.tradeType === "LONG" ? (
+                                  <FaArrowUp className="text-green-500 mx-auto h-3 w-3" />
+                                ) : bot.tradeType === "SHORT" ? (
+                                  <FaArrowDown className="text-red-500 mx-auto h-3 w-3" />
+                                ) : (
+                                  <span className="text-xs">
+                                    {bot.tradeType}
+                                  </span>
+                                )}
+                              </TableCell>
+                              <TableCell className="text-center py-1 text-xs">
+                                Min {bot.int}
+                              </TableCell>
+                              <TableCell className="text-right py-1 text-xs">
+                                {bot.oc}%
+                              </TableCell>
+                              <TableCell className="text-right py-1 text-xs">
+                                {bot.amount}$
+                              </TableCell>
+                              <TableCell className="text-right py-1 text-xs">
+                                {bot.extend}%
+                              </TableCell>
+                              <TableCell className="text-right py-1 text-xs">
+                                {bot.takeProfit}%
+                              </TableCell>
+                              <TableCell className="text-right py-1 text-xs">
+                                {bot.reduceTp}%
+                              </TableCell>
+                              <TableCell className="text-right py-1 text-xs">
+                                {bot.upReduce}%
+                              </TableCell>
+                              <TableCell className="text-right py-1 text-xs">
+                                {bot.ignore}%
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                      </React.Fragment>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </Card>
         </>
       )}
 
-      <DialogCustom open={isDialogOpen} onOpenChange={closeDialog}>
-        <StrategyForm onSuccess={handleStrategyAdded} symbolsList={symbolsList} />
-      </DialogCustom>
-
-      <DialogCustom open={isEditDialogOpen} onOpenChange={closeEditDialog}>
-        {editingStrategy && (
+      <DialogCustom
+        open={isDialogOpen}
+        onOpenChange={closeDialog}
+        className="max-w-[95vw] md:max-w-[450px]"
+      >
+        <div className="max-h-[85vh] overflow-y-auto p-3">
           <StrategyForm
-            strategy={{
-              ...editingStrategy,
-              tradeType: editingStrategy.tradeType as "LONG" | "SHORT" | "BOTH",
-            }}
-            isEditing={true}
-            onSuccess={() => {
-              refetch();
-              closeEditDialog();
-            }}
+            onSuccess={handleStrategyAdded}
             symbolsList={symbolsList}
           />
+        </div>
+      </DialogCustom>
+
+      <DialogCustom
+        open={isEditDialogOpen}
+        onOpenChange={closeEditDialog}
+        className="max-w-[95vw] md:max-w-[450px]"
+      >
+        {editingStrategy && (
+          <div className="max-h-[85vh] overflow-y-auto p-3">
+            <StrategyForm
+              strategy={{
+                ...editingStrategy,
+                tradeType: editingStrategy.tradeType as
+                  | "LONG"
+                  | "SHORT"
+                  | "BOTH",
+              }}
+              isEditing={true}
+              onSuccess={() => {
+                refetch();
+                closeEditDialog();
+              }}
+              symbolsList={symbolsList}
+            />
+          </div>
         )}
       </DialogCustom>
-      {/* Add the delete confirmation dialog */}
+
       <DialogCustom
         open={deleteConfirmOpen}
         onOpenChange={setDeleteConfirmOpen}
+        className="max-w-[90vw] md:max-w-[350px]"
       >
-        <div className="p-6 space-y-6">
-          <h3 className="text-xl font-semibold">Confirm Deletion</h3>
-          <p className="text-muted-foreground">
+        <div className="p-3 space-y-3">
+          <h3 className="text-base font-semibold">Confirm Deletion</h3>
+          <p className="text-muted-foreground text-xs">
             Are you sure you want to delete this strategy? This action cannot be
             undone.
           </p>
-          <div className="flex justify-end gap-3">
+          <div className="flex justify-end gap-2">
             <Button
               variant="outline"
               onClick={() => setDeleteConfirmOpen(false)}
+              size="sm"
+              className="text-xs py-1 px-2 h-7"
             >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={confirmDelete}>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              size="sm"
+              className="text-xs py-1 px-2 h-7"
+            >
               Delete
             </Button>
           </div>

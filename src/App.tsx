@@ -6,7 +6,16 @@ import "./App.css";
 function App() {
   return (
     <>
-      <Toaster />
+      <Toaster
+        position="top-right"
+        className="max-w-[90vw] sm:max-w-[350px]"
+        toastOptions={{
+          style: {
+            maxWidth: "100%",
+            right: 0,
+          },
+        }}
+      />
       <RouterProvider router={router} />
     </>
   );

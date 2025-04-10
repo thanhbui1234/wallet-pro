@@ -7,13 +7,19 @@ import {
 interface DialogCustomProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  children: React.ReactNode; // Nhận JSX
+  children: React.ReactNode;
+  className?: string; // Add className prop
 }
 
-const DialogCustom = ({ open, onOpenChange, children }: DialogCustomProps) => {
+const DialogCustom = ({
+  open,
+  onOpenChange,
+  children,
+  className,
+}: DialogCustomProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className={className}>
         <DialogHeader>{children}</DialogHeader>
       </DialogContent>
     </Dialog>

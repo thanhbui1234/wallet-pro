@@ -46,8 +46,8 @@ type FormValues = z.infer<typeof formSchema>;
 
 // Add this to your imports
 import { updateStrategy } from "@/services/StrategiesServices.ts";
-import { useEffect, useState } from "react";
 import axios from "axios";
+import { useEffect } from "react";
 
 // Update the StrategyFormProps interface
 interface StrategyFormProps {
@@ -86,9 +86,10 @@ const StrategyForm = ({
     queryFn: getBots,
   });
 
-  const storedBots = typeof window !== "undefined"
-    ? JSON.parse(sessionStorage.getItem("bots") || "[]")
-    : [];
+  const storedBots =
+    typeof window !== "undefined"
+      ? JSON.parse(sessionStorage.getItem("bots") || "[]")
+      : [];
 
   const { data: strategiesData } = useQuery({
     queryKey: ["strategies"],
@@ -110,33 +111,33 @@ const StrategyForm = ({
     defaultValues:
       isEditing && strategy
         ? {
-          symbol: strategy.symbol,
-          botId: strategy.botId,
-          int: strategy.int,
-          tradeType: strategy.tradeType as "BOTH" | "LONG" | "SHORT",
-          oc: strategy.oc,
-          amount: strategy.amount,
-          extend: strategy.extend,
-          takeProfit: strategy.takeProfit,
-          reduceTp: strategy.reduceTp,
-          upReduce: strategy.upReduce,
-          ignore: strategy.ignore,
-          ps: strategy.ps,
-          cs: strategy.cs,
-        }
+            symbol: strategy.symbol,
+            botId: strategy.botId,
+            int: strategy.int,
+            tradeType: strategy.tradeType as "BOTH" | "LONG" | "SHORT",
+            oc: strategy.oc,
+            amount: strategy.amount,
+            extend: strategy.extend,
+            takeProfit: strategy.takeProfit,
+            reduceTp: strategy.reduceTp,
+            upReduce: strategy.upReduce,
+            ignore: strategy.ignore,
+            ps: strategy.ps,
+            cs: strategy.cs,
+          }
         : {
-          symbol: "",
-          botId: "",
-          int: 5,
-          tradeType: "BOTH",
-          oc: 0,
-          amount: 0,
-          extend: 0,
-          takeProfit: 0,
-          reduceTp: 0,
-          upReduce: 0,
-          ignore: 0,
-        },
+            symbol: "",
+            botId: "",
+            int: 5,
+            tradeType: "BOTH",
+            oc: 0,
+            amount: 0,
+            extend: 0,
+            takeProfit: 0,
+            reduceTp: 0,
+            upReduce: 0,
+            ignore: 0,
+          },
   });
 
   const selectedSymbol = useWatch({
@@ -145,7 +146,7 @@ const StrategyForm = ({
   });
 
   useEffect(() => {
-    if (!!isEditing) return
+    if (isEditing) return;
     const fetchContractData = async () => {
       if (selectedSymbol) {
         try {
@@ -159,7 +160,7 @@ const StrategyForm = ({
     };
 
     fetchContractData();
-  }, [selectedSymbol]);
+  }, [selectedSymbol, form, isEditing]);
 
   // Add update mutation
   // Add the missing createStrategyMutation
@@ -229,31 +230,31 @@ const StrategyForm = ({
   };
 
   return (
-    <div className="p-6 w-full">
-      <h2 className="text-2xl font-bold mb-6">
+    <div className="p-3 w-full">
+      <h2 className="text-lg font-bold mb-4">
         {isEditing ? "Edit Strategy" : "Add New Strategy"}
       </h2>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-3">
               <FormField
                 control={form.control}
                 name="symbol"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base">Symbol</FormLabel>
+                    <FormLabel className="text-xs">Symbol</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                       disabled={isEditing}
                     >
                       <FormControl>
-                        <SelectTrigger className="h-10">
+                        <SelectTrigger className="h-8 text-xs">
                           <SelectValue placeholder="Select a symbol" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="text-xs">
                         {symbolsList.map((symbol: string) => (
                           <SelectItem key={symbol} value={symbol}>
                             {symbol}
@@ -261,7 +262,7 @@ const StrategyForm = ({
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -271,23 +272,23 @@ const StrategyForm = ({
                 name="int"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base">Interval</FormLabel>
+                    <FormLabel className="text-xs">Interval</FormLabel>
                     <Select
                       onValueChange={(value) => field.onChange(Number(value))}
                       defaultValue={String(field.value)}
                     >
                       <FormControl>
-                        <SelectTrigger className="h-10">
+                        <SelectTrigger className="h-8 text-xs">
                           <SelectValue placeholder="Select interval" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="text-xs">
                         <SelectItem value="1">Min 1</SelectItem>
                         <SelectItem value="5">Min 5</SelectItem>
                         <SelectItem value="15">Min 15</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -297,11 +298,11 @@ const StrategyForm = ({
                 name="oc"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base">OC (%)</FormLabel>
+                    <FormLabel className="text-xs">OC (%)</FormLabel>
                     <FormControl>
-                      <Input type="number" className="h-10" {...field} />
+                      <Input type="number" className="h-8 text-xs" {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -311,11 +312,11 @@ const StrategyForm = ({
                 name="extend"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base">Extend (%)</FormLabel>
+                    <FormLabel className="text-xs">Extend (%)</FormLabel>
                     <FormControl>
-                      <Input type="number" className="h-10" {...field} />
+                      <Input type="number" className="h-8 text-xs" {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -325,16 +326,16 @@ const StrategyForm = ({
                 name="reduceTp"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base">Reduce TP (%)</FormLabel>
+                    <FormLabel className="text-xs">Reduce TP (%)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         step="0.1"
-                        className="h-10"
+                        className="h-8 text-xs"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -344,70 +345,53 @@ const StrategyForm = ({
                 name="ignore"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base">Ignore (%)</FormLabel>
+                    <FormLabel className="text-xs">Ignore (%)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         step="0.1"
-                        className="h-10"
+                        className="h-8 text-xs"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
-
-              {/* <FormField
-                control={form.control}
-                name="cs"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base">CS</FormLabel>
-                    <FormControl>
-                      <Input type="number" className="h-10" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              /> */}
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <FormField
                 control={form.control}
                 name="botId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base">Bot</FormLabel>
+                    <FormLabel className="text-xs">Bot</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                       disabled={isEditing}
                     >
                       <FormControl>
-                        <SelectTrigger className="h-10">
+                        <SelectTrigger className="h-8 text-xs">
                           <SelectValue placeholder="Select a bot" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
-                        {/* Use the bots from strategies data if available, otherwise fall back to botsData */}
+                      <SelectContent className="text-xs">
                         {storedBots.length > 0
-                          ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                          storedBots.map((bot: any) => (
-                            <SelectItem key={bot.id} value={bot.id}>
-                              {bot.name}
-                            </SelectItem>
-                          ))
-                          : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                          botsData?.data?.map((bot: any) => (
-                            <SelectItem key={bot.id} value={bot.id}>
-                              {bot.name}
-                            </SelectItem>
-                          ))}
+                          ? storedBots.map((bot: any) => (
+                              <SelectItem key={bot.id} value={bot.id}>
+                                {bot.name}
+                              </SelectItem>
+                            ))
+                          : botsData?.data?.map((bot: any) => (
+                              <SelectItem key={bot.id} value={bot.id}>
+                                {bot.name}
+                              </SelectItem>
+                            ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -417,23 +401,23 @@ const StrategyForm = ({
                 name="tradeType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base">Trade Type</FormLabel>
+                    <FormLabel className="text-xs">Trade Type</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger className="h-10">
+                        <SelectTrigger className="h-8 text-xs">
                           <SelectValue placeholder="Select trade type" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="text-xs">
                         <SelectItem value="BOTH">Both</SelectItem>
                         <SelectItem value="LONG">Long</SelectItem>
                         <SelectItem value="SHORT">Short</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -443,11 +427,11 @@ const StrategyForm = ({
                 name="amount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base">Amount ($)</FormLabel>
+                    <FormLabel className="text-xs">Amount ($)</FormLabel>
                     <FormControl>
-                      <Input type="number" className="h-10" {...field} />
+                      <Input type="number" className="h-8 text-xs" {...field} />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -457,16 +441,16 @@ const StrategyForm = ({
                 name="takeProfit"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base">Take Profit (%)</FormLabel>
+                    <FormLabel className="text-xs">Take Profit (%)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         step="0.1"
-                        className="h-10"
+                        className="h-8 text-xs"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -476,41 +460,27 @@ const StrategyForm = ({
                 name="upReduce"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base">Up Reduce (%)</FormLabel>
+                    <FormLabel className="text-xs">Up Reduce (%)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         step="0.1"
-                        className="h-10"
+                        className="h-8 text-xs"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
-
-              {/* <FormField
-                control={form.control}
-                name="ps"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base">PS</FormLabel>
-                    <FormControl>
-                      <Input type="number" className="h-10" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              /> */}
             </div>
           </div>
 
-          <div className="flex justify-end gap-4 mt-8">
+          <div className="flex justify-end gap-3 mt-4">
             <Button
               type="button"
               variant="outline"
-              className="min-w-[100px]"
+              className="h-8 text-xs py-0 px-3"
               onClick={() => form.reset()}
               disabled={
                 createStrategyMutation.isPending ||
@@ -521,18 +491,18 @@ const StrategyForm = ({
             </Button>
             <Button
               type="submit"
-              className="min-w-[150px]"
+              className="h-8 text-xs py-0 px-3"
               disabled={
                 createStrategyMutation.isPending ||
                 updateStrategyMutation.isPending
               }
             >
               {createStrategyMutation.isPending ||
-                updateStrategyMutation.isPending
+              updateStrategyMutation.isPending
                 ? "Saving..."
                 : isEditing
-                  ? "Update Strategy"
-                  : "Create Strategy"}
+                ? "Update"
+                : "Create"}
             </Button>
           </div>
         </form>
