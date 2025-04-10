@@ -1,4 +1,4 @@
-import AvatarHeader from "@/components/ui/Header/avatar.tsx";
+import Balance from "@/components/ui/Header/balance.tsx";
 import Right from "@/components/ui/Header/Right/index.tsx";
 import { NavLink } from "react-router-dom";
 
@@ -11,15 +11,13 @@ const navLinks = [
 export default function Header() {
   return (
     <header className="flex justify-between items-center px-6 py-4 bg-white shadow-md">
-      <AvatarHeader />
       <nav className="flex gap-6">
         {navLinks.map(({ to, label }) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }) =>
-              `font-semibold ${
-                isActive ? "text-black" : "text-gray-700 hover:text-black"
+              `font-semibold ${isActive ? "text-black" : "text-gray-700 hover:text-black"
               }`
             }
           >
@@ -27,7 +25,10 @@ export default function Header() {
           </NavLink>
         ))}
       </nav>
-      <Right />
+      <div className="flex items-center gap-4">
+        <Balance />
+        <Right />
+      </div>
     </header>
   );
 }

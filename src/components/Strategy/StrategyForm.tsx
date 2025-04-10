@@ -22,7 +22,7 @@ import {
 } from "@/services/StrategiesServices.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -46,6 +46,8 @@ type FormValues = z.infer<typeof formSchema>;
 
 // Add this to your imports
 import { updateStrategy } from "@/services/StrategiesServices.ts";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 // Update the StrategyFormProps interface
 interface StrategyFormProps {
@@ -69,6 +71,7 @@ interface StrategyFormProps {
     botName?: string;
   };
   isEditing?: boolean;
+  symbolsList?: string[];
 }
 
 // Update the component to handle editing
@@ -76,71 +79,87 @@ const StrategyForm = ({
   onSuccess,
   strategy,
   isEditing = false,
+  symbolsList,
 }: StrategyFormProps) => {
   const { data: botsData } = useQuery({
     queryKey: ["bots"],
     queryFn: getBots,
   });
 
+  const storedBots = typeof window !== "undefined"
+    ? JSON.parse(sessionStorage.getItem("bots") || "[]")
+    : [];
+
   const { data: strategiesData } = useQuery({
     queryKey: ["strategies"],
     queryFn: getStrategies,
   });
 
-  // Extract unique symbols from strategies data
-  const symbols = strategiesData?.data
-    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      [...new Set(strategiesData.data.map((strategy: any) => strategy.symbol))]
-    : [];
-
-  // Extract unique bots with their IDs and names from strategies data
-  const bots = strategiesData?.data
-    ? [
-        ...new Map(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          strategiesData.data.map((strategy: any) => [
-            strategy.botId,
-            { id: strategy.botId, name: strategy.botName },
-          ])
-        ).values(),
-      ]
-    : [];
+  const getContractDetail = async (symbol: string) => {
+    const response = await axios.get(`mexc/api/v1/contract/detailV2`, {
+      params: {
+        client: "web",
+        symbol,
+      },
+    });
+    return response.data;
+  };
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues:
       isEditing && strategy
         ? {
-            symbol: strategy.symbol,
-            botId: strategy.botId,
-            int: strategy.int,
-            tradeType: strategy.tradeType as "BOTH" | "LONG" | "SHORT",
-            oc: strategy.oc,
-            amount: strategy.amount,
-            extend: strategy.extend,
-            takeProfit: strategy.takeProfit,
-            reduceTp: strategy.reduceTp,
-            upReduce: strategy.upReduce,
-            ignore: strategy.ignore,
-            ps: strategy.ps,
-            cs: strategy.cs,
-          }
+          symbol: strategy.symbol,
+          botId: strategy.botId,
+          int: strategy.int,
+          tradeType: strategy.tradeType as "BOTH" | "LONG" | "SHORT",
+          oc: strategy.oc,
+          amount: strategy.amount,
+          extend: strategy.extend,
+          takeProfit: strategy.takeProfit,
+          reduceTp: strategy.reduceTp,
+          upReduce: strategy.upReduce,
+          ignore: strategy.ignore,
+          ps: strategy.ps,
+          cs: strategy.cs,
+        }
         : {
-            symbol: "",
-            botId: "",
-            int: 5,
-            tradeType: "BOTH",
-            oc: 50,
-            amount: 10,
-            extend: 10,
-            takeProfit: 1.5,
-            reduceTp: 0.5,
-            upReduce: 2,
-            ignore: 0.2,
-            ps: 2,
-            cs: 20,
-          },
+          symbol: "",
+          botId: "",
+          int: 5,
+          tradeType: "BOTH",
+          oc: 0,
+          amount: 0,
+          extend: 0,
+          takeProfit: 0,
+          reduceTp: 0,
+          upReduce: 0,
+          ignore: 0,
+        },
   });
+
+  const selectedSymbol = useWatch({
+    control: form.control,
+    name: "symbol",
+  });
+
+  useEffect(() => {
+    if (!!isEditing) return
+    const fetchContractData = async () => {
+      if (selectedSymbol) {
+        try {
+          const data = await getContractDetail(selectedSymbol);
+          form.setValue("cs", data.data[0].cs || 0);
+          form.setValue("ps", data.data[0].ps || 0);
+        } catch (error) {
+          console.error("Failed to fetch contract detail", error);
+        }
+      }
+    };
+
+    fetchContractData();
+  }, [selectedSymbol]);
 
   // Add update mutation
   // Add the missing createStrategyMutation
@@ -227,6 +246,7 @@ const StrategyForm = ({
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
+                      disabled={isEditing}
                     >
                       <FormControl>
                         <SelectTrigger className="h-10">
@@ -234,7 +254,7 @@ const StrategyForm = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {symbols.map((symbol: string) => (
+                        {symbolsList.map((symbol: string) => (
                           <SelectItem key={symbol} value={symbol}>
                             {symbol}
                           </SelectItem>
@@ -252,9 +272,21 @@ const StrategyForm = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-base">Interval</FormLabel>
-                    <FormControl>
-                      <Input type="number" className="h-10" {...field} />
-                    </FormControl>
+                    <Select
+                      onValueChange={(value) => field.onChange(Number(value))}
+                      defaultValue={String(field.value)}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="h-10">
+                          <SelectValue placeholder="Select interval" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="1">Min 1</SelectItem>
+                        <SelectItem value="5">Min 5</SelectItem>
+                        <SelectItem value="15">Min 15</SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -326,7 +358,7 @@ const StrategyForm = ({
                 )}
               />
 
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="cs"
                 render={({ field }) => (
@@ -338,7 +370,7 @@ const StrategyForm = ({
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
             </div>
 
             <div className="space-y-4">
@@ -351,6 +383,7 @@ const StrategyForm = ({
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
+                      disabled={isEditing}
                     >
                       <FormControl>
                         <SelectTrigger className="h-10">
@@ -359,19 +392,19 @@ const StrategyForm = ({
                       </FormControl>
                       <SelectContent>
                         {/* Use the bots from strategies data if available, otherwise fall back to botsData */}
-                        {bots.length > 0
+                        {storedBots.length > 0
                           ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            bots.map((bot: any) => (
-                              <SelectItem key={bot.id} value={bot.id}>
-                                {bot.name}
-                              </SelectItem>
-                            ))
+                          storedBots.map((bot: any) => (
+                            <SelectItem key={bot.id} value={bot.id}>
+                              {bot.name}
+                            </SelectItem>
+                          ))
                           : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            botsData?.data?.map((bot: any) => (
-                              <SelectItem key={bot.id} value={bot.id}>
-                                {bot.name}
-                              </SelectItem>
-                            ))}
+                          botsData?.data?.map((bot: any) => (
+                            <SelectItem key={bot.id} value={bot.id}>
+                              {bot.name}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -457,7 +490,7 @@ const StrategyForm = ({
                 )}
               />
 
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="ps"
                 render={({ field }) => (
@@ -469,7 +502,7 @@ const StrategyForm = ({
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
             </div>
           </div>
 
@@ -495,11 +528,11 @@ const StrategyForm = ({
               }
             >
               {createStrategyMutation.isPending ||
-              updateStrategyMutation.isPending
+                updateStrategyMutation.isPending
                 ? "Saving..."
                 : isEditing
-                ? "Update Strategy"
-                : "Create Strategy"}
+                  ? "Update Strategy"
+                  : "Create Strategy"}
             </Button>
           </div>
         </form>

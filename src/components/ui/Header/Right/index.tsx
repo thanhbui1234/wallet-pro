@@ -28,7 +28,7 @@ const Right = () => {
     <Popover>
       <PopoverTrigger asChild>
         <Avatar className="cursor-pointer">
-          <AvatarImage src="https://github.com/shadcn.png" />
+          <AvatarImage src="src/assets/hanoi-crypto-bros.jpg" />
           <AvatarFallback>Bot</AvatarFallback>
         </Avatar>
       </PopoverTrigger>

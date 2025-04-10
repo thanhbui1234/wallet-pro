@@ -23,6 +23,7 @@ import {
   getStrategies,
 } from "@/services/StrategiesServices.ts";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import {
   FaArrowDown,
@@ -73,6 +74,7 @@ const StrategyTable = () => {
     null
   );
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [symbolsList, setSymbolsList] = useState<string[]>([]);
 
   // Fetch strategies data using React Query
   const {
@@ -95,6 +97,21 @@ const StrategyTable = () => {
       toast.error(`Failed to delete strategy: ${error}`);
     },
   });
+
+  useEffect(() => {
+    const fetchSymbols = async () => {
+      try {
+        const res = await axios.get(`/mexc/api/v1/contract/ticker`);
+        const filtered = res.data.data
+          .map((item: any) => item.symbol)
+        setSymbolsList(filtered);
+      } catch (error) {
+        console.error("Failed to fetch symbols:", error);
+      }
+    };
+
+    fetchSymbols();
+  }, []);
 
   // Group strategies by symbol when API data is loaded
   useEffect(() => {
@@ -356,7 +373,7 @@ const StrategyTable = () => {
                               )}
                             </TableCell>
                             <TableCell className="text-center">
-                              {bot.int}
+                              Min {bot.int}
                             </TableCell>
                             <TableCell className="text-right">
                               {bot.oc}%
@@ -391,7 +408,7 @@ const StrategyTable = () => {
       )}
 
       <DialogCustom open={isDialogOpen} onOpenChange={closeDialog}>
-        <StrategyForm onSuccess={handleStrategyAdded} />
+        <StrategyForm onSuccess={handleStrategyAdded} symbolsList={symbolsList} />
       </DialogCustom>
 
       <DialogCustom open={isEditDialogOpen} onOpenChange={closeEditDialog}>
@@ -406,6 +423,7 @@ const StrategyTable = () => {
               refetch();
               closeEditDialog();
             }}
+            symbolsList={symbolsList}
           />
         )}
       </DialogCustom>
