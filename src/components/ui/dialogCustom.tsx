@@ -3,6 +3,7 @@ import {
   DialogContent,
   DialogHeader,
 } from "@/components/ui/dialog.tsx";
+import clsx from "clsx";
 
 interface DialogCustomProps {
   open: boolean;
@@ -19,7 +20,7 @@ const DialogCustom = ({
 }: DialogCustomProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={className}>
+      <DialogContent className={clsx(className, "z-50")}>
         <DialogHeader>{children}</DialogHeader>
       </DialogContent>
     </Dialog>
