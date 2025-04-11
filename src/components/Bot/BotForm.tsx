@@ -110,7 +110,7 @@ const BotForm = () => {
 
   return (
     <div className="p-2">
-      <h2 className="text-lg font-bold mb-2"z>
+      <h2 className="text-lg font-bold mb-2">
         {isUpdateMode ? "Update Bot" : "Create Bot"}
       </h2>
       <form onSubmit={handleSubmit(handleFormSubmit)}>
