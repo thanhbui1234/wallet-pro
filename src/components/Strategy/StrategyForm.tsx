@@ -47,7 +47,8 @@ type FormValues = z.infer<typeof formSchema>;
 // Add this to your imports
 import { updateStrategy } from "@/services/StrategiesServices.ts";
 import axios from "axios";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Bot } from "@/store/botStore.ts";
 
 // Update the StrategyFormProps interface
 interface StrategyFormProps {
@@ -85,11 +86,15 @@ const StrategyForm = ({
     queryKey: ["bots"],
     queryFn: getBots,
   });
+  const [storedBots, setStoredBots] = useState<Bot[]>([]);
 
-  const storedBots =
-    typeof window !== "undefined"
-      ? JSON.parse(sessionStorage.getItem("bots") || "[]")
-      : [];
+  useEffect(() => {
+    const bots =
+      typeof window !== "undefined"
+        ? JSON.parse(sessionStorage.getItem("bots") || "[]")
+        : [];
+    setStoredBots(bots)
+  }, []);
 
   const { data: strategiesData } = useQuery({
     queryKey: ["strategies"],
@@ -111,33 +116,33 @@ const StrategyForm = ({
     defaultValues:
       isEditing && strategy
         ? {
-            symbol: strategy.symbol,
-            botId: strategy.botId,
-            int: strategy.int,
-            tradeType: strategy.tradeType as "BOTH" | "LONG" | "SHORT",
-            oc: strategy.oc,
-            amount: strategy.amount,
-            extend: strategy.extend,
-            takeProfit: strategy.takeProfit,
-            reduceTp: strategy.reduceTp,
-            upReduce: strategy.upReduce,
-            ignore: strategy.ignore,
-            ps: strategy.ps,
-            cs: strategy.cs,
-          }
+          symbol: strategy.symbol,
+          botId: strategy.botId,
+          int: strategy.int,
+          tradeType: strategy.tradeType as "BOTH" | "LONG" | "SHORT",
+          oc: strategy.oc,
+          amount: strategy.amount,
+          extend: strategy.extend,
+          takeProfit: strategy.takeProfit,
+          reduceTp: strategy.reduceTp,
+          upReduce: strategy.upReduce,
+          ignore: strategy.ignore,
+          ps: strategy.ps,
+          cs: strategy.cs,
+        }
         : {
-            symbol: "",
-            botId: "",
-            int: 5,
-            tradeType: "BOTH",
-            oc: 0,
-            amount: 0,
-            extend: 0,
-            takeProfit: 0,
-            reduceTp: 0,
-            upReduce: 0,
-            ignore: 0,
-          },
+          symbol: "",
+          botId: "",
+          int: 5,
+          tradeType: "BOTH",
+          oc: 0,
+          amount: 0,
+          extend: 0,
+          takeProfit: 0,
+          reduceTp: 0,
+          upReduce: 0,
+          ignore: 0,
+        },
   });
 
   const selectedSymbol = useWatch({
@@ -380,15 +385,15 @@ const StrategyForm = ({
                       <SelectContent className="text-xs">
                         {storedBots.length > 0
                           ? storedBots.map((bot: any) => (
-                              <SelectItem key={bot.id} value={bot.id}>
-                                {bot.name}
-                              </SelectItem>
-                            ))
+                            <SelectItem key={bot.id} value={bot.id}>
+                              {bot.name}
+                            </SelectItem>
+                          ))
                           : botsData?.data?.map((bot: any) => (
-                              <SelectItem key={bot.id} value={bot.id}>
-                                {bot.name}
-                              </SelectItem>
-                            ))}
+                            <SelectItem key={bot.id} value={bot.id}>
+                              {bot.name}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                     <FormMessage className="text-xs" />
@@ -498,11 +503,11 @@ const StrategyForm = ({
               }
             >
               {createStrategyMutation.isPending ||
-              updateStrategyMutation.isPending
+                updateStrategyMutation.isPending
                 ? "Saving..."
                 : isEditing
-                ? "Update"
-                : "Create"}
+                  ? "Update"
+                  : "Create"}
             </Button>
           </div>
         </form>

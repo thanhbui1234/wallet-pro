@@ -110,7 +110,7 @@ const BotForm = () => {
 
   return (
     <div className="p-2">
-      <h2 className="text-lg font-bold mb-2">
+      <h2 className="text-lg font-bold mb-2"z>
         {isUpdateMode ? "Update Bot" : "Create Bot"}
       </h2>
       <form onSubmit={handleSubmit(handleFormSubmit)}>
@@ -169,7 +169,6 @@ const BotForm = () => {
             </Label>
             <Input
               id="secretKey"
-              type="password"
               className="border border-gray-300 h-8 text-sm mt-1"
               {...register("secretKey")}
             />
@@ -229,8 +228,8 @@ const BotForm = () => {
               {createBotMutation.isPending || updateBotMutation.isPending
                 ? "Saving..."
                 : isUpdateMode
-                ? "Update Bot"
-                : "Save Bot"}
+                  ? "Update Bot"
+                  : "Save Bot"}
             </Button>
           </div>
         </div>

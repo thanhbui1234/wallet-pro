@@ -34,6 +34,14 @@ import {
   FaTrash,
 } from "react-icons/fa";
 import { toast } from "sonner";
+import { Plus, Copy, Upload } from "lucide-react";
+import {
+  Command,
+  CommandInput,
+  CommandItem,
+  CommandEmpty,
+  CommandList,
+} from "@/components/ui/command.tsx"
 
 // Define the strategy item interface based on the API response
 interface StrategyItem {
@@ -78,6 +86,10 @@ const StrategyTable = () => {
   );
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [symbolsList, setSymbolsList] = useState<string[]>([]);
+  const [storedBots, setStoredBots] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [fromSelectedBot, setFromSelectedBot] = useState(null);
+  const [fromBotValue, setFromBotValue] = useState('');
 
   // Fetch strategies data using React Query
   const {
@@ -114,6 +126,12 @@ const StrategyTable = () => {
     };
 
     fetchSymbols();
+
+    const bots =
+      typeof window !== "undefined"
+        ? JSON.parse(sessionStorage.getItem("bots") || "[]")
+        : [];
+    setStoredBots(bots)
   }, []);
 
   // Group strategies by symbol when API data is loaded
@@ -226,25 +244,25 @@ const StrategyTable = () => {
           <Button
             onClick={openDialog}
             size="sm"
-            className="text-xs py-1 px-2 z-20"
+            className="text-xs py-1 px-2 z-20 bg-green-500 hover:bg-green-600 cursor-pointer"
           >
-            +
+            <Plus size={14} />
           </Button>
 
           <Button
             onClick={() => setIsCustomDialog1Open(true)}
             size="sm"
-            className="text-xs py-1 px-2 bg-blue-500 hover:bg-blue-600 z-20"
+            className="text-xs py-1 px-2 bg-green-500 hover:bg-green-600 z-20 cursor-pointer"
           >
-            Copy
+            <Copy size={14} />
           </Button>
 
           <Button
             onClick={() => setIsCustomDialog2Open(true)}
             size="sm"
-            className="text-xs py-1 px-2 bg-green-500 hover:bg-green-600 z-20"
+            className="text-xs py-1 px-2 bg-green-500 hover:bg-green-600 z-20 cursor-pointer"
           >
-            gay
+            <Upload size={14} />
           </Button>
         </div>
       </div>
@@ -590,27 +608,6 @@ const StrategyTable = () => {
         <div className="max-h-[85vh] overflow-y-auto p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold">Clone Strategy</h2>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsCustomDialog1Open(false)}
-              className="h-6 w-6 rounded-full"
-            >
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 15 15"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z"
-                  fill="currentColor"
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                ></path>
-              </svg>
-            </Button>
           </div>
 
           <div className="space-y-6">
@@ -622,10 +619,18 @@ const StrategyTable = () => {
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select destination" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="option1">Option 1</SelectItem>
-                  <SelectItem value="option2">Option 2</SelectItem>
-                  <SelectItem value="option3">Option 3</SelectItem>
+                <SelectContent className="max-h-60 overflow-y-auto">
+                  {storedBots && storedBots.length > 0 ? (
+                    storedBots.map((bot) => (
+                      <SelectItem key={bot.id} value={bot.id}>
+                        {bot.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem disabled value="">
+                      No bots available
+                    </SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -634,29 +639,43 @@ const StrategyTable = () => {
               <label className="text-sm font-medium flex items-center">
                 <span className="text-red-500 mr-1">*</span> Copy from
               </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Search..."
+
+              <Command className="w-full rounded-lg border shadow-md">
+                <CommandInput
+                  placeholder="Search bots..."
+                  value={fromBotValue}
+                  onFocus={() => setShowDropdown(true)}
+                  onValueChange={(value) => setFromBotValue(value)}
+                  onBlur={() => setTimeout(() => setShowDropdown(false), 100)} // timeout để không bị mất dropdown trước khi chọn
                 />
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <svg
-                    width="15"
-                    height="15"
-                    viewBox="0 0 15 15"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M10 6.5C10 8.433 8.433 10 6.5 10C4.567 10 3 8.433 3 6.5C3 4.567 4.567 3 6.5 3C8.433 3 10 4.567 10 6.5ZM9.30884 10.0159C8.53901 10.6318 7.56251 11 6.5 11C4.01472 11 2 8.98528 2 6.5C2 4.01472 4.01472 2 6.5 2C8.98528 2 11 4.01472 11 6.5C11 7.56251 10.6318 8.53901 10.0159 9.30884L12.8536 12.1464C13.0488 12.3417 13.0488 12.6583 12.8536 12.8536C12.6583 13.0488 12.3417 13.0488 12.1464 12.8536L9.30884 10.0159Z"
-                      fill="currentColor"
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                    ></path>
-                  </svg>
-                </div>
-              </div>
+                {showDropdown && (
+                  <CommandList className="max-h-60 overflow-y-auto">
+                    {storedBots.length === 0 && (
+                      <CommandEmpty>No bots found</CommandEmpty>
+                    )}
+                    {storedBots.map((bot) => (
+                      <CommandItem
+                        key={bot.id}
+                        value={bot.name}
+                        onSelect={() => {
+                          setFromSelectedBot(bot);
+                          setShowDropdown(false);
+                          setFromBotValue(bot.name);
+                        }}
+                      >
+                        {bot.name}
+                      </CommandItem>
+                    ))}
+                  </CommandList>
+
+                )}
+              </Command>
+
+              {fromSelectedBot && (
+                <p className="text-sm text-gray-600 mt-1">
+                  Selected bot: <strong>{fromSelectedBot.name}</strong>
+                </p>
+              )}
             </div>
 
             <div className="flex justify-end gap-2 pt-4">
@@ -681,7 +700,7 @@ const StrategyTable = () => {
             </div>
           </div>
         </div>
-      </DialogCustom>
+      </DialogCustom >
 
       <DialogCustom
         open={isCustomDialog2Open}
@@ -691,27 +710,6 @@ const StrategyTable = () => {
         <div className="max-h-[85vh] overflow-y-auto p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold">Import Strategy</h2>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsCustomDialog2Open(false)}
-              className="h-6 w-6 rounded-full"
-            >
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 15 15"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z"
-                  fill="currentColor"
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                ></path>
-              </svg>
-            </Button>
           </div>
 
           <div className="space-y-6">
@@ -724,19 +722,17 @@ const StrategyTable = () => {
                   <SelectValue placeholder="Select bot" />
                 </SelectTrigger>
                 <SelectContent>
-                  {strategiesState
-                    .flatMap((strategy) =>
-                      strategy.bots.map((bot) => (
-                        <SelectItem key={bot.id} value={bot.botName}>
-                          {bot.botName}
-                        </SelectItem>
-                      ))
-                    )
-                    .filter(
-                      (bot, index, self) =>
-                        index ===
-                        self.findIndex((t) => t.props.value === bot.props.value)
-                    )}
+                  {storedBots && storedBots.length > 0 ? (
+                    storedBots.map((bot) => (
+                      <SelectItem key={bot.id} value={bot.id}>
+                        {bot.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem disabled value="">
+                      No bots available
+                    </SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -807,7 +803,7 @@ const StrategyTable = () => {
           </div>
         </div>
       </DialogCustom>
-    </div>
+    </div >
   );
 };
 

@@ -15,7 +15,7 @@ import {
 } from "@/store/botStore.ts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Edit } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./button.tsx";
 import { Switch } from "./switch.tsx";
 
@@ -46,6 +46,15 @@ const BotTable = () => {
 
   // State to track which bots are active
   const [activeBots, setActiveBots] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (bots.length > 0) {
+      const initial = Object.fromEntries(
+        bots.map(bot => [bot.id, bot.status === "ACTIVE" ? true : false]) // fallback nếu bot.isActive bị undefined
+      );
+      setActiveBots(initial);
+    }
+  }, [bots]);
 
   const changeBotStatusMutation = useMutation({
     mutationFn: ({ botId, isActive }: { botId: string; isActive: boolean }) =>
